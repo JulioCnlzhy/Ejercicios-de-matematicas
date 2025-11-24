@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suma de Fracciones</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <h2><a href="index.html">Matemáticas</a></h2>
+      </div>
+      <ul class="nav-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="suma-fracciones.html">Suma Fracciones</a></li>
+        <li><a href="resta-fracciones.html">Resta Fracciones</a></li>
+        <li><a href="proporcionalidad.html">Proporcionalidad</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="section">
+    <h2>Suma de Fracciones</h2>
+    <p>Para sumar fracciones con diferentes denominadores, primero encuentra el mínimo común múltiplo (MCM) de los denominadores, convierte las fracciones a equivalentes con ese denominador común, y luego suma los numeradores.</p>
+    
+    <div class="exercise-container">
+      <button id="generateExercise">Generar Nuevo Ejercicio</button>
+      <div id="exercise"></div>
+      <input type="text" id="userAnswer" placeholder="Tu respuesta (ej: 5/6)">
+      <button id="checkAnswer">Verificar</button>
+      <div id="result"></div>
+    </div>
+  </section>
+
+  <script src="suma-fracciones.js"></script>
+</body>
+</html>

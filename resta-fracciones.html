@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resta de Fracciones</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <h2><a href="index.html">Matemáticas</a></h2>
+      </div>
+      <ul class="nav-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="suma-fracciones.html">Suma Fracciones</a></li>
+        <li><a href="resta-fracciones.html">Resta Fracciones</a></li>
+        <li><a href="proporcionalidad.html">Proporcionalidad</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="section">
+    <h2>Resta de Fracciones</h2>
+    <p>Para restar fracciones con diferentes denominadores, sigue el mismo proceso que en la suma: encuentra el MCM, convierte las fracciones, y resta los numeradores.</p>
+    
+    <div class="exercise-container">
+      <button id="generateExercise">Generar Nuevo Ejercicio</button>
+      <div id="exercise"></div>
+      <input type="text" id="userAnswer" placeholder="Tu respuesta (ej: 1/4)">
+      <button id="checkAnswer">Verificar</button>
+      <div id="result"></div>
+    </div>
+  </section>
+
+  <script src="resta-fracciones.js"></script>
+</body>
+</html>
