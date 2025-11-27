@@ -1,68 +1,107 @@
 // Esperar a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM cargado - Iniciando configuración...');
+  
   // Inicializar notificaciones push
   initPushNotifications();
   
+  // Inicializar menú hamburguesa inmediatamente
+  initMobileMenu();
+  
   // Desplazamiento suave
+  initSmoothScroll();
+  
+  // Configurar página activa
+  highlightActivePage();
+  
+  // Ajustar márgenes
+  adjustHeroMargin();
+  
+  // Event listeners globales
+  initGlobalEvents();
+});
+
+// ==============================================
+// CONFIGURACIÓN DEL MENÚ MÓVIL
+// ==============================================
+
+function initMobileMenu() {
+  console.log('Inicializando menú móvil...');
+  
+  const hamburger = document.querySelector('.hamburger');
+  const navLinks = document.querySelector('.nav-links');
+  const body = document.body;
+
+  if (!hamburger || !navLinks) {
+    console.warn('Elementos del menú no encontrados');
+    return;
+  }
+
+  // Mostrar el hamburguesa en móvil
+  hamburger.style.display = 'flex';
+  
+  // Event listener para el hamburguesa
+  hamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    console.log('Hamburguesa clickeado');
+    
+    navLinks.classList.toggle('active');
+    hamburger.classList.toggle('active');
+    body.classList.toggle('menu-open');
+    
+    // Debug
+    console.log('Menú activo:', navLinks.classList.contains('active'));
+  });
+
+  // Cerrar menú al hacer clic en un enlace
+  navLinks.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A') {
+      console.log('Enlace clickeado, cerrando menú...');
+      closeMobileMenu();
+    }
+  });
+}
+
+function closeMobileMenu() {
+  const hamburger = document.querySelector('.hamburger');
+  const navLinks = document.querySelector('.nav-links');
+  const body = document.body;
+
+  if (navLinks) navLinks.classList.remove('active');
+  if (hamburger) hamburger.classList.remove('active');
+  body.classList.remove('menu-open');
+}
+
+// ==============================================
+// CONFIGURACIÓN DE SCROLL SUAVE
+// ==============================================
+
+function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
-      // Solo aplicar desplazamiento suave para enlaces internos
       if (this.getAttribute('href').startsWith('#')) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const targetId = this.getAttribute('href');
+        const target = document.querySelector(targetId);
+        
         if (target) {
           target.scrollIntoView({
             behavior: 'smooth',
             block: 'start'
           });
           
-          // Cerrar menú móvil después de hacer clic
           closeMobileMenu();
         }
       }
     });
   });
+}
 
-  // Menú móvil
-  const hamburger = document.querySelector('.hamburger');
-  const navLinks = document.querySelector('.nav-links');
-  const body = document.body;
+// ==============================================
+// CONFIGURACIÓN DE PÁGINA ACTIVA
+// ==============================================
 
-  if (hamburger && navLinks) {
-    hamburger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      navLinks.classList.toggle('active');
-      hamburger.classList.toggle('active');
-      body.classList.toggle('menu-open');
-    });
-
-    // Cerrar menú al hacer clic fuera
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.navbar') && navLinks.classList.contains('active')) {
-        closeMobileMenu();
-      }
-    });
-
-    // Cerrar menú al redimensionar la ventana (si se cambia a desktop)
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) {
-        closeMobileMenu();
-      }
-    });
-
-    // Prevenir que los clics dentro del menú lo cierren
-    navLinks.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-  }
-
-  function closeMobileMenu() {
-    if (navLinks) navLinks.classList.remove('active');
-    if (hamburger) hamburger.classList.remove('active');
-    body.classList.remove('menu-open');
-  }
-
-  // Mejora: Añadir clase para indicar página activa
+function highlightActivePage() {
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   const navLinksAll = document.querySelectorAll('.nav-links a');
   
@@ -72,31 +111,61 @@ document.addEventListener('DOMContentLoaded', () => {
       link.classList.add('active');
     }
   });
+}
 
-  // Mejora: Cerrar menú al presionar Escape
+// ==============================================
+// CONFIGURACIÓN DE MÁRGENES
+// ==============================================
+
+function adjustHeroMargin() {
+  const header = document.querySelector('header');
+  const hero = document.querySelector('.hero');
+  
+  if (header && hero) {
+    const headerHeight = header.offsetHeight;
+    hero.style.marginTop = headerHeight + 'px';
+    
+    // Reajustar en redimensionamiento
+    window.addEventListener('resize', () => {
+      const newHeight = header.offsetHeight;
+      hero.style.marginTop = newHeight + 'px';
+    });
+  }
+}
+
+// ==============================================
+// EVENTOS GLOBALES
+// ==============================================
+
+function initGlobalEvents() {
+  // Cerrar menú al hacer clic fuera
+  document.addEventListener('click', (e) => {
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (!e.target.closest('.navbar') && 
+        navLinks && navLinks.classList.contains('active')) {
+      closeMobileMenu();
+    }
+  });
+
+  // Cerrar menú con Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeMobileMenu();
     }
   });
 
-  // Mejora: Ajustar altura del hero basado en el header
-  function adjustHeroMargin() {
-    const header = document.querySelector('header');
-    const hero = document.querySelector('.hero');
-    if (header && hero) {
-      const headerHeight = header.offsetHeight;
-      hero.style.marginTop = headerHeight + 'px';
+  // Cerrar menú al redimensionar (si se cambia a desktop)
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+      closeMobileMenu();
     }
-  }
-
-  // Ejecutar al cargar y al redimensionar
-  adjustHeroMargin();
-  window.addEventListener('resize', adjustHeroMargin);
-});
+  });
+}
 
 // ==============================================
-// SISTEMA DE NOTIFICACIONES PUSH CON PROMESAS
+// SISTEMA DE NOTIFICACIONES PUSH MEJORADO
 // ==============================================
 
 class PushNotificationManager {
@@ -105,14 +174,21 @@ class PushNotificationManager {
     this.permission = this.isSupported ? Notification.permission : 'denied';
     this.serviceWorkerRegistered = false;
     
-    // Botón para activar/desactivar notificaciones
+    console.log('Notificaciones soportadas:', this.isSupported);
+    console.log('Permiso actual:', this.permission);
+    
     this.createNotificationButton();
   }
 
-  // Crear botón de notificaciones
   createNotificationButton() {
     return new Promise((resolve) => {
-      // Buscar si ya existe un botón de notificaciones
+      // Solo crear el botón si las notificaciones son soportadas
+      if (!this.isSupported) {
+        console.log('Notificaciones no soportadas en este navegador');
+        resolve(null);
+        return;
+      }
+
       let notificationBtn = document.getElementById('notification-toggle');
       
       if (!notificationBtn) {
@@ -137,7 +213,10 @@ class PushNotificationManager {
           cursor: 'pointer',
           boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
           zIndex: '1000',
-          transition: 'all 0.3s ease'
+          transition: 'all 0.3s ease',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         });
 
         notificationBtn.addEventListener('mouseenter', () => {
@@ -150,7 +229,8 @@ class PushNotificationManager {
           notificationBtn.style.backgroundColor = '#4a7b9d';
         });
 
-        notificationBtn.addEventListener('click', () => {
+        notificationBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
           this.toggleNotifications();
         });
 
@@ -162,7 +242,6 @@ class PushNotificationManager {
     });
   }
 
-  // Actualizar estado del botón
   updateButtonState() {
     const btn = document.getElementById('notification-toggle');
     if (!btn) return;
@@ -177,17 +256,15 @@ class PushNotificationManager {
         btn.innerHTML = '🔕';
         btn.title = 'Notificaciones bloqueadas';
         btn.style.backgroundColor = '#e74c3c';
-        btn.disabled = true;
+        btn.onclick = null;
         break;
       default:
         btn.innerHTML = '🔔';
         btn.title = 'Activar notificaciones';
         btn.style.backgroundColor = '#4a7b9d';
-        btn.disabled = false;
     }
   }
 
-  // Verificar y solicitar permisos
   checkPermission() {
     return new Promise((resolve, reject) => {
       if (!this.isSupported) {
@@ -205,9 +282,11 @@ class PushNotificationManager {
         return;
       }
 
-      // Solicitar permiso
+      // Solicitar permiso - ESTA ES LA PARTE CLAVE PARA MÓVIL
+      console.log('Solicitando permiso de notificaciones...');
       Notification.requestPermission()
         .then(permission => {
+          console.log('Permiso obtenido:', permission);
           this.permission = permission;
           this.updateButtonState();
           
@@ -215,16 +294,16 @@ class PushNotificationManager {
             resolve('granted');
             this.showWelcomeNotification();
           } else {
-            reject(new Error('Usuario denegó los permisos'));
+            reject(new Error('Usuario denegó los permisos: ' + permission));
           }
         })
         .catch(error => {
+          console.error('Error solicitando permiso:', error);
           reject(error);
         });
     });
   }
 
-  // Activar/desactivar notificaciones
   toggleNotifications() {
     return new Promise((resolve, reject) => {
       if (this.permission === 'granted') {
@@ -245,25 +324,30 @@ class PushNotificationManager {
     });
   }
 
-  // Activar notificaciones
   enableNotifications() {
     return new Promise((resolve, reject) => {
+      console.log('Activando notificaciones...');
       this.checkPermission()
         .then(permission => {
           if (permission === 'granted') {
             this.registerServiceWorker()
               .then(() => {
+                console.log('Notificaciones activadas correctamente');
                 resolve('enabled');
                 this.scheduleDailyNotifications();
               })
-              .catch(reject);
+              .catch(error => {
+                console.warn('Error registrando Service Worker:', error);
+                // Continuar aunque falle el Service Worker
+                resolve('enabled_without_sw');
+                this.scheduleDailyNotifications();
+              });
           }
         })
         .catch(reject);
     });
   }
 
-  // Desactivar notificaciones
   disableNotifications() {
     return new Promise((resolve) => {
       this.permission = 'denied';
@@ -273,16 +357,10 @@ class PushNotificationManager {
     });
   }
 
-  // Registrar Service Worker (para notificaciones push avanzadas)
   registerServiceWorker() {
     return new Promise((resolve, reject) => {
       if (!'serviceWorker' in navigator) {
         resolve('serviceWorker_not_supported');
-        return;
-      }
-
-      if (this.serviceWorkerRegistered) {
-        resolve('already_registered');
         return;
       }
 
@@ -294,12 +372,11 @@ class PushNotificationManager {
         })
         .catch(error => {
           console.warn('Error registrando Service Worker:', error);
-          resolve('registration_failed_but_continuing');
+          reject(error);
         });
     });
   }
 
-  // Mostrar notificación simple
   showNotification(title, message, options = {}) {
     return new Promise((resolve, reject) => {
       if (!this.isSupported || this.permission !== 'granted') {
@@ -309,36 +386,20 @@ class PushNotificationManager {
 
       const notificationOptions = {
         body: message,
-        icon: '/icon-192x192.png',
-        badge: '/badge-72x72.png',
+        icon: 'https://cdn-icons-png.flaticon.com/512/2103/2103633.png',
+        badge: 'https://cdn-icons-png.flaticon.com/512/2103/2103633.png',
         tag: 'math-notification',
         requireInteraction: false,
         ...options
       };
 
-      // Intentar usar Service Worker primero
-      if (this.serviceWorkerRegistered && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready
-          .then(registration => {
-            registration.showNotification(title, notificationOptions);
-            resolve('shown_via_serviceworker');
-          })
-          .catch(() => {
-            // Fallback a Notification API
-            this.showNativeNotification(title, message, notificationOptions)
-              .then(resolve)
-              .catch(reject);
-          });
-      } else {
-        // Usar Notification API directamente
-        this.showNativeNotification(title, message, notificationOptions)
-          .then(resolve)
-          .catch(reject);
-      }
+      // Usar Notification API directamente (más confiable en móviles)
+      this.showNativeNotification(title, message, notificationOptions)
+        .then(resolve)
+        .catch(reject);
     });
   }
 
-  // Mostrar notificación nativa
   showNativeNotification(title, message, options) {
     return new Promise((resolve, reject) => {
       try {
@@ -350,10 +411,12 @@ class PushNotificationManager {
         };
 
         notification.onshow = () => {
+          console.log('Notificación mostrada exitosamente');
           resolve('shown_natively');
         };
 
         notification.onerror = (error) => {
+          console.error('Error mostrando notificación:', error);
           reject(error);
         };
 
@@ -368,46 +431,32 @@ class PushNotificationManager {
     });
   }
 
-  // Notificación de bienvenida
   showWelcomeNotification() {
     return this.showNotification(
       '¡Bienvenido a Matemáticas! 🎉',
       'Ahora recibirás recordatorios para practicar ejercicios matemáticos',
       {
-        icon: 'https://cdn-icons-png.flaticon.com/512/2103/2103633.png',
         requireInteraction: true
       }
     );
   }
 
-  // Programar notificaciones diarias
   scheduleDailyNotifications() {
     return new Promise((resolve) => {
-      // Verificar si ya es una hora adecuada para la primera notificación
-      const now = new Date();
-      const firstNotificationTime = new Date();
-      
-      // Programar para la misma hora o la siguiente si ya pasó
-      firstNotificationTime.setHours(18, 0, 0, 0); // 6:00 PM
-      if (now > firstNotificationTime) {
-        firstNotificationTime.setDate(firstNotificationTime.getDate() + 1);
-      }
-
-      const timeUntilFirstNotification = firstNotificationTime.getTime() - now.getTime();
-
+      // Programar primera notificación en 10 segundos (para prueba)
       setTimeout(() => {
         this.showDailyNotification();
-        // Programar notificación diaria cada 24 horas
-        setInterval(() => {
-          this.showDailyNotification();
-        }, 24 * 60 * 60 * 1000);
-      }, timeUntilFirstNotification);
+      }, 10000);
+
+      // Programar notificación diaria cada 24 horas
+      setInterval(() => {
+        this.showDailyNotification();
+      }, 24 * 60 * 60 * 1000);
 
       resolve('scheduled');
     });
   }
 
-  // Mostrar notificación diaria
   showDailyNotification() {
     const messages = [
       '¡Es un buen momento para practicar matemáticas! ¿Listo para un desafío?',
@@ -421,39 +470,18 @@ class PushNotificationManager {
     
     return this.showNotification(
       '📚 Hora de Matemáticas',
-      randomMessage,
-      {
-        icon: 'https://cdn-icons-png.flaticon.com/512/2103/2103633.png',
-        actions: [
-          { action: 'practice', title: 'Practicar Ahora' }
-        ]
-      }
-    ).then(() => {
-      console.log('Notificación diaria mostrada');
-    }).catch(error => {
+      randomMessage
+    ).catch(error => {
       console.warn('Error mostrando notificación diaria:', error);
     });
   }
 
-  // Cancelar todas las notificaciones programadas
   cancelAllNotifications() {
     return new Promise((resolve) => {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready
-          .then(registration => {
-            registration.getNotifications()
-              .then(notifications => {
-                notifications.forEach(notification => {
-                  notification.close();
-                });
-              });
-          });
-      }
       resolve('cancelled');
     });
   }
 
-  // Notificación de logro por completar ejercicios
   showAchievementNotification(exerciseType, score) {
     return new Promise((resolve, reject) => {
       if (this.permission !== 'granted') {
@@ -475,7 +503,6 @@ class PushNotificationManager {
       }
 
       this.showNotification(title, message, {
-        icon: 'https://cdn-icons-png.flaticon.com/512/2103/2103633.png',
         requireInteraction: true
       })
       .then(resolve)
@@ -485,48 +512,49 @@ class PushNotificationManager {
 }
 
 // ==============================================
-// INICIALIZACIÓN DEL SISTEMA
+// INICIALIZACIÓN MEJORADA
 // ==============================================
 
 function initPushNotifications() {
   return new Promise((resolve) => {
-    const notificationManager = new PushNotificationManager();
-    
-    // Exponer el manager globalmente para uso en otros archivos
-    window.MathNotifications = notificationManager;
+    // Esperar un poco para que la página cargue completamente
+    setTimeout(() => {
+      const notificationManager = new PushNotificationManager();
+      
+      // Exponer el manager globalmente
+      window.MathNotifications = notificationManager;
 
-    // Verificar si ya tenemos permisos al cargar
-    if (notificationManager.permission === 'granted') {
-      notificationManager.registerServiceWorker()
-        .then(() => {
-          notificationManager.scheduleDailyNotifications();
-        })
-        .catch(console.warn);
-    }
+      // Verificar si ya tenemos permisos al cargar
+      if (notificationManager.permission === 'granted') {
+        notificationManager.registerServiceWorker()
+          .then(() => {
+            notificationManager.scheduleDailyNotifications();
+          })
+          .catch(console.warn);
+      }
 
-    // Mostrar banner informativo sobre notificaciones (solo una vez)
-    showNotificationBanner(notificationManager);
+      // Mostrar banner informativo (solo en escritorio o después de interacción)
+      if (window.innerWidth > 768 || notificationManager.permission === 'default') {
+        showNotificationBanner(notificationManager);
+      }
 
-    resolve(notificationManager);
+      resolve(notificationManager);
+    }, 1000);
   });
 }
 
-// Banner informativo sobre notificaciones
 function showNotificationBanner(notificationManager) {
   return new Promise((resolve) => {
-    // Verificar si ya mostramos el banner
     if (localStorage.getItem('notificationBannerShown')) {
       resolve('banner_already_shown');
       return;
     }
 
-    // Solo mostrar si no hay permisos concedidos
     if (notificationManager.permission === 'granted') {
       resolve('permissions_already_granted');
       return;
     }
 
-    // Crear banner
     const banner = document.createElement('div');
     banner.id = 'notification-banner';
     banner.innerHTML = `
@@ -534,7 +562,7 @@ function showNotificationBanner(notificationManager) {
         <span class="banner-icon">🔔</span>
         <div class="banner-text">
           <strong>¿Quieres recordatorios para practicar?</strong>
-          <p>Activa las notificaciones para recibir recordatorios diarios de ejercicios matemáticos.</p>
+          <p>Activa las notificaciones para recibir recordatorios diarios.</p>
         </div>
         <div class="banner-actions">
           <button id="banner-enable" class="banner-btn enable">Activar</button>
@@ -543,99 +571,25 @@ function showNotificationBanner(notificationManager) {
       </div>
     `;
 
-    // Estilos del banner
+    // Añadir estilos inline para mayor confiabilidad
     Object.assign(banner.style, {
       position: 'fixed',
-      bottom: '80px',
+      bottom: '90px',
       left: '20px',
       right: '20px',
       backgroundColor: 'var(--light)',
       border: '2px solid var(--primary)',
-      borderRadius: 'var(--border-radius)',
-      padding: 'var(--spacing-md)',
+      borderRadius: '8px',
+      padding: '15px',
       boxShadow: '0 8px 25px var(--shadow)',
       zIndex: '999',
       maxWidth: '500px',
       margin: '0 auto'
     });
 
-    // Añadir estilos CSS para el banner
-    const style = document.createElement('style');
-    style.textContent = `
-      .banner-content {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-md);
-      }
-      .banner-icon {
-        font-size: 2rem;
-        flex-shrink: 0;
-      }
-      .banner-text {
-        flex-grow: 1;
-      }
-      .banner-text strong {
-        display: block;
-        margin-bottom: 0.25rem;
-        color: var(--primary);
-      }
-      .banner-text p {
-        margin: 0;
-        font-size: 0.9rem;
-        color: var(--text);
-        opacity: 0.8;
-      }
-      .banner-actions {
-        display: flex;
-        gap: var(--spacing-sm);
-        flex-shrink: 0;
-      }
-      .banner-btn {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s ease;
-      }
-      .banner-btn.enable {
-        background-color: var(--primary);
-        color: white;
-      }
-      .banner-btn.enable:hover {
-        background-color: var(--accent);
-        transform: translateY(-2px);
-      }
-      .banner-btn.dismiss {
-        background-color: transparent;
-        color: var(--text);
-        border: 1px solid var(--secondary);
-      }
-      .banner-btn.dismiss:hover {
-        background-color: var(--secondary);
-      }
-
-      @media (max-width: 768px) {
-        .banner-content {
-          flex-direction: column;
-          text-align: center;
-          gap: var(--spacing-sm);
-        }
-        .banner-actions {
-          width: 100%;
-          justify-content: center;
-        }
-        .banner-btn {
-          flex: 1;
-          max-width: 120px;
-        }
-      }
-    `;
-
-    document.head.appendChild(style);
     document.body.appendChild(banner);
 
-    // Event listeners para los botones del banner
+    // Event listeners
     document.getElementById('banner-enable').addEventListener('click', () => {
       notificationManager.enableNotifications()
         .then(() => {
@@ -656,19 +610,12 @@ function showNotificationBanner(notificationManager) {
       resolve('dismissed');
     });
 
-    // Auto-ocultar después de 10 segundos
+    // Auto-ocultar después de 15 segundos
     setTimeout(() => {
       if (document.body.contains(banner)) {
-        banner.style.opacity = '0';
-        banner.style.transform = 'translateY(20px)';
-        banner.style.transition = 'all 0.5s ease';
-        setTimeout(() => {
-          if (document.body.contains(banner)) {
-            banner.remove();
-          }
-        }, 500);
+        banner.remove();
       }
-    }, 10000);
+    }, 15000);
   });
 }
 
@@ -679,12 +626,5 @@ window.MathUtils = {
       return window.MathNotifications.showAchievementNotification(exerciseType, score);
     }
     return Promise.resolve('notifications_not_available');
-  },
-  
-  requestNotificationPermission: () => {
-    if (window.MathNotifications) {
-      return window.MathNotifications.enableNotifications();
-    }
-    return Promise.reject(new Error('Notification system not initialized'));
   }
 };
